@@ -1,4 +1,4 @@
-package nl.basjes.bugreports.sftp;
+package nl.basjes.examples.sftp;
 
 import org.apache.sshd.common.file.FileSystemFactory;
 import org.apache.sshd.common.session.SessionContext;
@@ -34,11 +34,13 @@ public class CloudStorageSftp {
 
         try(SshServer server = SshServer.setUpDefaultServer()) {
             server.setPort(2222);
+
             server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("my.pem").toPath()));
 
             SftpSubsystemFactory sftpSubsystemFactory = new SftpSubsystemFactory();
             sftpSubsystemFactory.setFileSystemAccessor(SftpFileSystemAccessor.DEFAULT);
             server.setSubsystemFactories(Collections.singletonList(sftpSubsystemFactory));
+
             server.setFileSystemFactory(new FileSystemFactory() {
                 @Override
                 public Path getUserHomeDir(SessionContext session) {
@@ -50,6 +52,7 @@ public class CloudStorageSftp {
                     return FileSystems.getFileSystem(URI.create("gs://" + bucketName));
                 }
             });
+
             server.start();
 
             // Only for testing, 10000 seconds is fine.
